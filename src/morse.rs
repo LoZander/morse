@@ -36,23 +36,18 @@ pub type Word = Vec<Char>;
 pub type Sen = Vec<Word>;
 
 
-pub fn translate(s: Sen) -> Result<String,String> {
-    /* s.into_iter()
-     .fold(Ok(String::from("")), |acc,w| {
-        Ok(acc? + trans_word(w)?.as_str() + " ")
-     }) */
-    s.into_iter().try_fold(String::new(),
-        |acc, x| Ok(acc + trans_word(x)?.as_str() + " ")
-    ).map(|x| x.trim_end().to_string())
+pub fn decode(s: Sen) -> Result<String,String> {
+    s.into_iter()
+     .try_fold(String::new(),|acc, x| Ok(acc + decode_word(x)?.as_str() + " "))
+     .map(|x| x.trim_end().to_string())
 }
 
-fn trans_word(w: Word) -> Result<String,String> {
-    w.into_iter().try_fold(String::new(),
-        |acc,x| Ok(acc + trans_symbol(x)?)
-    )
+fn decode_word(w: Word) -> Result<String,String> {
+    w.into_iter()
+     .try_fold(String::new(),|acc,x| Ok(acc + decode_character(x)?))
 }
 
-fn trans_symbol(c: Char) -> Result<&'static str,String> {
+fn decode_character(c: Char) -> Result<&'static str,String> {
     match c[..] {
         [Dot,Dash]                  => Ok("a"),
         [Dash,Dot,Dot,Dot]          => Ok("b"),

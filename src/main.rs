@@ -1,5 +1,5 @@
 use morse::Sen;
-use morse::translate;
+use morse::decode;
 use parse::parse;
 
 
@@ -10,6 +10,6 @@ mod parse;
 
 fn main() {
     let cipher: Sen = parse(String::from("... --- ... / ... --- ...")).unwrap();
-    let plain = translate(cipher).unwrap();
+    let plain = decode(cipher).unwrap();
     println!("Plaintext: {}",plain)
 }
