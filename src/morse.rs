@@ -1,92 +1,123 @@
-use Sym::*;
-pub enum Sym {Dash,Dot}
-impl std::fmt::Display for Sym {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            Self::Dash => write!(f,"-"),
-            Self::Dot => write!(f,".")
-        }
-    }
+use crate::{types::{Sym::{Dash,Dot}, Sen, Word, Char, self, string_of_sen}, parse};
+
+/**
+ * Decodes a morse code sentence, where '/' is the word separator
+ */
+pub fn decode(cipher: String) -> String {
+    let sen: Sen = parse::parse(cipher);
+    sen.into_iter()
+       .map(decode_word)
+       .map(|x| x + " ")
+       .collect()
 }
 
-impl std::fmt::Debug for Sym {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f,"{}",self)
-    }
-}
-
-pub type Char = Vec<Sym>;
-
-pub fn string_of_char(c: &Char) -> String {
-    c.into_iter().map(|x| format!("{}",x)).collect()
-}
-
-#[allow(dead_code)]
-pub fn string_of_word(w: &Word) -> String {
-    let string: String = w.into_iter().map(|x| format!("{} ",string_of_char(x))).collect();
-    string.trim().to_string()
-}
-
-#[allow(dead_code)]
-pub fn string_of_sen(s: &Sen) -> String {
-    s.into_iter().map(|x| format!("{} / ",string_of_word(x))).collect()
-}
-
-pub type Word = Vec<Char>;
-pub type Sen = Vec<Word>;
-
-
-pub fn decode(s: Sen) -> Result<String,String> {
-    s.into_iter()
-     .map(decode_word)
-     .map(|x| x.map(|x| x + " "))
-     .collect()
-}
-
-fn decode_word(w: Word) -> Result<String,String> {
-    w.into_iter()
+fn decode_word(word: Word) -> String {
+    word.into_iter()
      .map(decode_character)
      .collect()
 }
 
-fn decode_character(c: Char) -> Result<&'static str,String> {
-    match c[..] {
-        [Dot,Dash]                  => Ok("a"),
-        [Dash,Dot,Dot,Dot]          => Ok("b"),
-        [Dash,Dot,Dash,Dot]         => Ok("c"),
-        [Dash,Dot,Dot]              => Ok("d"),
-        [Dot]                       => Ok("e"),
-        [Dot,Dot,Dash,Dot]          => Ok("f"),
-        [Dash,Dash,Dot]             => Ok("g"),
-        [Dot,Dot,Dot,Dot]           => Ok("h"),
-        [Dot,Dot]                   => Ok("i"),
-        [Dot,Dash,Dash,Dash]        => Ok("j"),
-        [Dash,Dot,Dash]             => Ok("k"),
-        [Dot,Dash,Dot,Dot]          => Ok("l"),
-        [Dash,Dash]                 => Ok("m"),
-        [Dash,Dot]                  => Ok("n"),
-        [Dash,Dash,Dash]            => Ok("o"),
-        [Dot,Dash,Dash,Dot]         => Ok("p"),
-        [Dash,Dash,Dot,Dash]        => Ok("q"),
-        [Dot,Dash,Dot]              => Ok("r"),
-        [Dot,Dot,Dot]               => Ok("s"),
-        [Dash]                      => Ok("t"),
-        [Dot,Dot,Dash]              => Ok("u"),
-        [Dot,Dot,Dot,Dash]          => Ok("v"),
-        [Dot,Dash,Dash]             => Ok("w"),
-        [Dash,Dot,Dot,Dash]         => Ok("x"),
-        [Dash,Dot,Dash,Dash]        => Ok("y"),
-        [Dash,Dash,Dot,Dot]         => Ok("z"),
-        [Dot,Dash,Dash,Dash,Dash]   => Ok("1"),
-        [Dot,Dot,Dash,Dash,Dash]    => Ok("2"),
-        [Dot,Dot,Dot,Dash,Dash]     => Ok("3"),
-        [Dot,Dot,Dot,Dot,Dash]      => Ok("4"),
-        [Dot,Dot,Dot,Dot,Dot]       => Ok("5"),
-        [Dash,Dot,Dot,Dot,Dot]      => Ok("6"),
-        [Dash,Dash,Dot,Dot,Dot]     => Ok("7"),
-        [Dash,Dash,Dash,Dot,Dot]    => Ok("8"),
-        [Dash,Dash,Dash,Dash,Dot]   => Ok("9"),
-        [Dash,Dash,Dash,Dash,Dash]  => Ok("0"),
-        _ => Err(format!("invalid morse sequence [{}]",string_of_char(&c)))
+fn decode_character(char: Char) -> String {
+    match char[..] {
+        [Dot,Dash]                  => String::from("a"),
+        [Dash,Dot,Dot,Dot]          => String::from("b"),
+        [Dash,Dot,Dash,Dot]         => String::from("c"),
+        [Dash,Dot,Dot]              => String::from("d"),
+        [Dot]                       => String::from("e"),
+        [Dot,Dot,Dash,Dot]          => String::from("f"),
+        [Dash,Dash,Dot]             => String::from("g"),
+        [Dot,Dot,Dot,Dot]           => String::from("h"),
+        [Dot,Dot]                   => String::from("i"),
+        [Dot,Dash,Dash,Dash]        => String::from("j"),
+        [Dash,Dot,Dash]             => String::from("k"),
+        [Dot,Dash,Dot,Dot]          => String::from("l"),
+        [Dash,Dash]                 => String::from("m"),
+        [Dash,Dot]                  => String::from("n"),
+        [Dash,Dash,Dash]            => String::from("o"),
+        [Dot,Dash,Dash,Dot]         => String::from("p"),
+        [Dash,Dash,Dot,Dash]        => String::from("q"),
+        [Dot,Dash,Dot]              => String::from("r"),
+        [Dot,Dot,Dot]               => String::from("s"),
+        [Dash]                      => String::from("t"),
+        [Dot,Dot,Dash]              => String::from("u"),
+        [Dot,Dot,Dot,Dash]          => String::from("v"),
+        [Dot,Dash,Dash]             => String::from("w"),
+        [Dash,Dot,Dot,Dash]         => String::from("x"),
+        [Dash,Dot,Dash,Dash]        => String::from("y"),
+        [Dash,Dash,Dot,Dot]         => String::from("z"),
+        [Dot,Dash,Dash,Dash,Dash]   => String::from("1"),
+        [Dot,Dot,Dash,Dash,Dash]    => String::from("2"),
+        [Dot,Dot,Dot,Dash,Dash]     => String::from("3"),
+        [Dot,Dot,Dot,Dot,Dash]      => String::from("4"),
+        [Dot,Dot,Dot,Dot,Dot]       => String::from("5"),
+        [Dash,Dot,Dot,Dot,Dot]      => String::from("6"),
+        [Dash,Dash,Dot,Dot,Dot]     => String::from("7"),
+        [Dash,Dash,Dash,Dot,Dot]    => String::from("8"),
+        [Dash,Dash,Dash,Dash,Dot]   => String::from("9"),
+        [Dash,Dash,Dash,Dash,Dash]  => String::from("0"),
+        []                          => String::from(""),
+        _                           => format!("invalid morse sequence [{}]",types::string_of_char(&char))
+    }
+}
+
+/**
+ * Encodes a message to morse code. Any unrecognized symbols are simply thrown away.
+ */
+pub fn encode(plaintext: String) -> String {
+    let sen: Sen = plaintext.to_lowercase()
+                    .split(" ")
+                    .into_iter()
+                    .map(str::to_string)
+                    .map(encode_word)
+                    .collect();
+    format!("{}", string_of_sen(&sen))
+}
+
+fn encode_word(plaintext: String) -> Word {
+    plaintext.chars()
+     .into_iter()
+     .map(encode_char)
+     .collect()
+}
+
+fn encode_char(c: char) -> Char {
+    match c {
+        'a' => vec![Dot,Dash],
+        'b' => vec![Dash,Dot,Dot,Dot],
+        'c' => vec![Dash,Dot,Dash,Dot],
+        'd' => vec![Dash,Dot,Dot],
+        'e' => vec![Dot],
+        'f' => vec![Dot,Dot,Dash,Dot],
+        'g' => vec![Dash,Dash,Dot],
+        'h' => vec![Dot,Dot,Dot,Dot],
+        'i' => vec![Dot,Dot],
+        'j' => vec![Dot,Dash,Dash,Dash],
+        'k' => vec![Dash,Dot,Dash],
+        'l' => vec![Dot,Dash,Dot,Dot],
+        'm' => vec![Dash,Dash],
+        'n' => vec![Dash,Dot],
+        'o' => vec![Dash,Dash,Dash],
+        'p' => vec![Dot,Dash,Dash,Dot],
+        'q' => vec![Dash,Dash,Dot,Dash],
+        'r' => vec![Dot,Dash,Dot],
+        's' => vec![Dot,Dot,Dot],
+        't' => vec![Dash],
+        'u' => vec![Dot,Dot,Dash],
+        'v' => vec![Dot,Dot,Dot,Dash],
+        'w' => vec![Dot,Dash,Dash],
+        'x' => vec![Dash,Dot,Dot,Dash],
+        'y' => vec![Dash,Dot,Dash,Dash],
+        'z' => vec![Dash,Dash,Dot,Dot],
+        '1' => vec![Dot,Dash,Dash,Dash,Dash],
+        '2' => vec![Dot,Dot,Dash,Dash,Dash],
+        '3' => vec![Dot,Dot,Dot,Dash,Dash],
+        '4' => vec![Dot,Dot,Dot,Dot,Dash],
+        '5' => vec![Dot,Dot,Dot,Dot,Dot],
+        '6' => vec![Dash,Dot,Dot,Dot,Dot],
+        '7' => vec![Dash,Dash,Dot,Dot,Dot],
+        '8' => vec![Dash,Dash,Dash,Dot,Dot],
+        '9' => vec![Dash,Dash,Dash,Dash,Dot],
+        '0' => vec![Dash,Dash,Dash,Dash,Dash],
+        _ => vec![]
     }
 }
