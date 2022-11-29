@@ -1,6 +1,6 @@
 use std::env;
 
-use morse::{decode, encode};
+use morse::{MorseApp, MorseEncoder, MorseDecoder};
 
 mod types;
 mod morse;
@@ -12,8 +12,8 @@ fn main() {
         return
     }
     match args[1].as_str() {
-        "encode" => println!("{}",encode(args[2].clone())),
-        "decode" => println!("{}",decode(args[2].clone())),
+        "encode" => println!("{}",MorseApp::encode(args[2].clone())),
+        "decode" => println!("{}",MorseApp::decode(args[2].clone())),
         s => println!("{} is not a valid command. Try \"encode <plaintext>\" or \"decode <ciphertext>\"", s)
     }
 }

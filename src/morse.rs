@@ -1,14 +1,41 @@
 use crate::{types::{Sym::{Dash,Dot}, Sen, Word, Char, string_of_sen, string_of_char}, parse};
 
-/**
- * Decodes a morse code sentence, where '/' is the word separator
- */
-pub fn decode(cipher: String) -> String {
-    let sen: Sen = parse::parse(cipher);
-    sen.into_iter()
-       .map(decode_word)
-       .map(|x| x + " ")
-       .collect()
+pub trait MorseEncoder {
+    /**
+     * Encodes a message to morse code. Any unrecognized symbols are simply thrown away.
+     */
+    fn encode(plaintext: String) -> String;
+}
+
+pub trait MorseDecoder {
+    /**
+     * Decodes a morse code sentence, where '/' is the word separator
+     */
+    fn decode(cipher: String) -> String;
+}
+
+pub struct MorseApp;
+
+impl MorseEncoder for MorseApp {
+    fn encode(plaintext: String) -> String {
+        let sen: Sen = plaintext.to_lowercase()
+                        .split(' ')
+                        .into_iter()
+                        .map(str::to_string)
+                        .map(encode_word)
+                        .collect();
+        string_of_sen(&sen)
+    }
+}
+
+impl MorseDecoder for MorseApp {
+    fn decode(cipher: String) -> String {
+        let sen: Sen = parse::parse(cipher);
+        sen.into_iter()
+           .map(decode_word)
+           .map(|x| x + " ")
+           .collect()
+    }
 }
 
 fn decode_word(word: Word) -> String {
@@ -79,19 +106,6 @@ fn decode_character(char: Char) -> String {
         [Dash,Dash,Dash,Dot,Dot,Dot] => String::from(":"),
         _                           => format!("invalid morse sequence [{}]",string_of_char(&char))
     }
-}
-
-/**
- * Encodes a message to morse code. Any unrecognized symbols are simply thrown away.
- */
-pub fn encode(plaintext: String) -> String {
-    let sen: Sen = plaintext.to_lowercase()
-                    .split(' ')
-                    .into_iter()
-                    .map(str::to_string)
-                    .map(encode_word)
-                    .collect();
-    string_of_sen(&sen)
 }
 
 fn encode_word(plaintext: String) -> Word {
