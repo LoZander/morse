@@ -1,15 +1,19 @@
+use std::env;
+
 use morse::{decode, encode};
-use parse::parse;
 
 mod types;
 mod morse;
 mod parse;
 
 fn main() {
-    let plain = String::from("The quick brown fox jumps over the lazy dog, 1234567890. Certain character are not recognized and are simply thrown away, such as some of \"\'()[]{}.,:;/!?+-");
-    println!("Plaintext: {}",plain);
-    let encoded = encode(plain);
-    println!("Encoded: {}", encoded);
-    let decoded = decode(encoded);
-    println!("Decoded: {}",decoded)
+    let args: Vec<String> = env::args().collect();
+    if args.len() < 2 {
+        return
+    }
+    match args[1].as_str() {
+        "encode" => println!("{}",encode(args[2].to_owned())),
+        "decode" => println!("{}",decode(args[2].to_owned())),
+        s => println!("{} is not a valid command. Try \"encode <plaintext>\" or \"decode <ciphertext>\"", s)
+    }
 }

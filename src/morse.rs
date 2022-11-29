@@ -1,4 +1,4 @@
-use crate::{types::{Sym::{Dash,Dot}, Sen, Word, Char, self, string_of_sen}, parse};
+use crate::{types::{Sym::{Dash,Dot}, Sen, Word, Char, string_of_sen, string_of_char}, parse};
 
 /**
  * Decodes a morse code sentence, where '/' is the word separator
@@ -13,8 +13,9 @@ pub fn decode(cipher: String) -> String {
 
 fn decode_word(word: Word) -> String {
     word.into_iter()
-     .map(decode_character)
-     .collect()
+        .filter(|c| !c.is_empty())
+        .map(decode_character)
+        .collect()
 }
 
 fn decode_character(char: Char) -> String {
@@ -76,8 +77,7 @@ fn decode_character(char: Char) -> String {
         [Dash,Dot,Dash,Dash,Dot,Dash] => String::from("|"),
         [Dash,Dash,Dot,Dot,Dash,Dash] => String::from(","),
         [Dash,Dash,Dash,Dot,Dot,Dot] => String::from(":"),
-        []                          => String::from(""),
-        _                           => format!("invalid morse sequence [{}]",types::string_of_char(&char))
+        _                           => format!("invalid morse sequence [{}]",string_of_char(&char))
     }
 }
 
@@ -98,6 +98,7 @@ fn encode_word(plaintext: String) -> Word {
     plaintext.chars()
      .into_iter()
      .map(encode_char)
+     .filter(|e| !e.is_empty())
      .collect()
 }
 

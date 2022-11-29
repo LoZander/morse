@@ -28,7 +28,6 @@ pub fn string_of_char(c: &Char) -> String {
 
 pub fn string_of_word(w: &Word) -> String {
     w.into_iter()
-     .filter(|x: &&Char| !x.is_empty())
      .map(|x: &Char| format!("{} ",string_of_char(x)))
      .collect::<String>()
      .trim()
