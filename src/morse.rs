@@ -86,12 +86,12 @@ fn decode_character(char: Char) -> String {
  */
 pub fn encode(plaintext: String) -> String {
     let sen: Sen = plaintext.to_lowercase()
-                    .split(" ")
+                    .split(' ')
                     .into_iter()
                     .map(str::to_string)
                     .map(encode_word)
                     .collect();
-    format!("{}", string_of_sen(&sen))
+    string_of_sen(&sen)
 }
 
 fn encode_word(plaintext: String) -> Word {

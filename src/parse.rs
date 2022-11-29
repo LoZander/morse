@@ -10,7 +10,7 @@ pub fn parse(s: String) -> Sen {
 
 fn parse_words(s: String) -> Word {
     s.trim()
-     .split(" ")
+     .split(' ')
      .map(String::from)
      .into_iter()
      .map(parse_char)
@@ -26,5 +26,5 @@ fn parse_char(s: String) -> Char {
         e => Err(format!("Parsing error: {} is not a valid morse symbol", e))
      })
      .collect::<Result<Char,String>>()
-     .unwrap_or(vec![])
+     .unwrap_or_default()
 }
