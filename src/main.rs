@@ -1,5 +1,5 @@
 use std::env;
-
+use eframe::egui;
 use morse::{MorseApp, MorseEncoder, MorseDecoder};
 
 mod types;
@@ -16,4 +16,8 @@ fn main() {
         "decode" => println!("{}",MorseApp::decode(args[2].clone())),
         s => println!("{} is not a valid command. Try \"encode <plaintext>\" or \"decode <ciphertext>\"", s)
     }
+}
+
+impl eframe::App for MorseApp {
+    
 }
