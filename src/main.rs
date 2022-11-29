@@ -1,20 +1,58 @@
 use std::env;
-use morse::{MorseApp, MorseEncoder, MorseDecoder};
-use eframe::{egui};
+use eframe::{egui, epaint::vec2, HardwareAcceleration, Renderer, Theme};
 
 mod types;
 mod morse;
 mod parse;
 
 fn main() {
-    let options = eframe::NativeOptions::default();
-    eframe::run_native("Morse", options, Box::new(|_cc| Box::new(MorseApp)));
+    let options = eframe::NativeOptions{
+        always_on_top: false,
+        maximized: false,
+        decorated: true,
+        fullscreen: false,
+        drag_and_drop_support: true,
+        icon_data: None,
+        initial_window_pos: None,
+        initial_window_size: Some(vec2(300.,300.)),
+        min_window_size: None,
+        max_window_size: None,
+        resizable: true,
+        transparent: false,
+        vsync: true,
+        multisampling: 0,
+        depth_buffer: 0,
+        stencil_buffer: 0,
+        hardware_acceleration: HardwareAcceleration::Preferred,
+        renderer: Renderer::default(),
+        follow_system_theme: cfg!(target_os = "macos") || cfg!(target_os = "windows"),
+        default_theme: Theme::Dark,
+        run_and_return: true,
+    };
+    eframe::run_native("Morse", options, Box::new(|_cc| Box::new(GuiApp::default())));
 }
 
-impl eframe::App for MorseApp {
-    fn update(&mut self, ctx: &egui::Context, frame: &mut eframe::Frame) {
+#[derive(Default)]
+struct GuiApp {
+    enc_string: String,
+    dec_string: String,
+}
+
+impl eframe::App for GuiApp {
+    fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
         egui::CentralPanel::default().show(ctx, |ui| {
-            ui.heading("Hellow world!");
+            ui.heading("Encoding");
+            ui.vertical(|ui| {
+                ui.text_edit_multiline(&mut self.enc_string);
+                ui.label("Output:");
+                ui.label(morse::encode(self.enc_string.clone()));
+            });
+            ui.heading("Decoding");
+            ui.vertical(|ui| {
+                ui.text_edit_multiline(&mut self.dec_string);
+                ui.label("Output:");
+                ui.label(morse::decode(self.dec_string.clone()));
+            });
         });
     }
 }
