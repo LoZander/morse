@@ -21,13 +21,13 @@ impl std::fmt::Debug for Sym {
 
 
 pub fn string_of_char(c: &Char) -> String {
-    c.into_iter()
+    c.iter()
      .map(|x| format!("{}",x))
      .collect::<String>()
 }
 
 pub fn string_of_word(w: &Word) -> String {
-    w.into_iter()
+    w.iter()
      .map(|x: &Char| format!("{} ",string_of_char(x)))
      .collect::<String>()
      .trim()
@@ -35,7 +35,7 @@ pub fn string_of_word(w: &Word) -> String {
 }
 
 pub fn string_of_sen(s: &Sen) -> String {
-    let string = s.into_iter()
+    let string = s.iter()
                           .map(|x| format!("{} / ",string_of_word(x)))
                           .collect::<String>();
     string[0..string.len() - 3].to_string()

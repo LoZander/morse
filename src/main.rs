@@ -1,19 +1,11 @@
-use std::env;
-
-use morse::{decode, encode};
+#![windows_subsystem = "windows"]
+use gui::{GuiApp, Gui};
 
 mod types;
 mod morse;
 mod parse;
-
+mod gui;
 fn main() {
-    let args: Vec<String> = env::args().collect();
-    if args.len() < 2 {
-        return
-    }
-    match args[1].as_str() {
-        "encode" => println!("{}",encode(args[2].to_owned())),
-        "decode" => println!("{}",decode(args[2].to_owned())),
-        s => println!("{} is not a valid command. Try \"encode <plaintext>\" or \"decode <ciphertext>\"", s)
-    }
+    let gui = GuiApp::default();
+    gui.run();
 }
