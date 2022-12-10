@@ -47,7 +47,11 @@ impl eframe::App for GuiApp {
             ui.vertical(|ui| {
                 ui.text_edit_multiline(&mut self.enc_string);
                 ui.label("Output:");
-                ui.label(morse::encode(self.enc_string.clone()));
+                let x = match morse::encode(self.enc_string.clone()) {
+                    Ok(str) => str,
+                    Err(str) => str
+                };
+                ui.label(x);
             });
             ui.heading("Decoding");
             ui.vertical(|ui| {

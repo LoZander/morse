@@ -1,8 +1,12 @@
+use std::vec;
+
 #[derive(Clone)]
 pub enum Sym {Dash,Dot}
 pub type Char = Vec<Sym>;
 pub type Word = Vec<Char>;
 pub type Sen = Vec<Word>;
+
+pub type MorseResult<T> = Result<T,String>;
 
 impl std::fmt::Display for Sym {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
