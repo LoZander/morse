@@ -104,7 +104,7 @@ pub fn encode(plaintext: String) -> MorseResult<String> {
 fn encode_word(plaintext: String) -> MorseResult<Word> {
     plaintext.char_indices()
      .into_iter()
-     .map(|x| encode_char(x))
+     .map(encode_char)
      .collect()
 }
 

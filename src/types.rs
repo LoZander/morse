@@ -1,5 +1,3 @@
-use std::vec;
-
 #[derive(Clone)]
 pub enum Sym {Dash,Dot}
 pub type Char = Vec<Sym>;
