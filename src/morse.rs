@@ -93,7 +93,7 @@ fn decode_character(char: Char) -> String {
 
 pub fn encode(plaintext: String) -> MorseResult<String> {
         let sen: Sen = plaintext.to_lowercase()
-                        .split(' ')
+                        .split_whitespace()
                         .into_iter()
                         .map(str::to_string)
                         .map(encode_word)
