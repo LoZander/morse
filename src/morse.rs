@@ -1,4 +1,4 @@
-use crate::{types::{Sym::{Dash,Dot}, Sen, Word, Char, string_of_sen, string_of_char, MorseResult}, parse};
+use crate::{types::{Sym::{Dash,Dot}, Sen, Word, Char, string_of_sen, string_of_char, MorseResult, Pos}, parse};
 
 pub trait MorseEncoder {
     /**
@@ -94,21 +94,21 @@ fn decode_character(char: Char) -> String {
 pub fn encode(plaintext: String) -> MorseResult<String> {
         let sen: Sen = plaintext.to_lowercase()
                         .split_whitespace()
-                        .into_iter()
-                        .map(str::to_string)
-                        .map(encode_word)
+                        .enumerate()
+                        .map(|(i,s)| (i,s.to_string()))
+                        .map(|(i,s)| encode_word(i,s))
                         .collect::<MorseResult<_>>()?;
         Ok(string_of_sen(&sen))
 }
 
-fn encode_word(plaintext: String) -> MorseResult<Word> {
+fn encode_word(word_number: usize, plaintext: String) -> MorseResult<Word> {
     plaintext.char_indices()
      .into_iter()
-     .map(encode_char)
+     .map(|(i,c)| encode_char(Pos(word_number, i),c))
      .collect()
 }
 
-fn encode_char((i,c): (usize,char)) -> MorseResult<Char> {
+fn encode_char(p: Pos, c: char) -> MorseResult<Char> {
     match c {
         'a' => Ok(vec![Dot,Dash]),
         'b' => Ok(vec![Dash,Dot,Dot,Dot]),
@@ -168,6 +168,6 @@ fn encode_char((i,c): (usize,char)) -> MorseResult<Char> {
         '('|')' => Ok(vec![Dash,Dot,Dash,Dash,Dot,Dash]),
         ',' => Ok(vec![Dash,Dash,Dot,Dot,Dash,Dash]),
         ':' => Ok(vec![Dash,Dash,Dash,Dot,Dot,Dot]),
-        c => Err(format!("{} at position {} is not a valid character", c, i))
+        c => Err(format!("{} at position {} is not a valid character", c, p))
     }
 }
