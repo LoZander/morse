@@ -1,4 +1,4 @@
-use crate::{types::{Sym::{Dash,Dot}, Sen, Word, Char, string_of_sen, string_of_char, MorseResult, Pos}, parse};
+use crate::{types::{Sym::{Dash,Dot}, Sen, Word, Char, string_of_sen, string_of_char, MorseResult, EncodePos}, parse};
 
 pub trait MorseEncoder {
     /**
@@ -14,80 +14,82 @@ pub trait MorseDecoder {
     fn decode(cipher: String) -> String;
 }
 
-pub fn decode(cipher: String) -> String {
-    let sen: Sen = parse::parse(cipher);
+pub fn decode(cipher: String) -> MorseResult<String> {
+    let sen: Sen = parse::parse(cipher)?;
     sen.into_iter()
-       .map(decode_word)
-       .map(|x| x + " ")
+       .enumerate()
+       .map(|(i,w)| decode_word(i,w))
+       .map(|x| x.map(|x| x + " "))
        .collect()
 }
 
-fn decode_word(word: Word) -> String {
+fn decode_word(index: usize, word: Word) -> MorseResult<String> {
     word.into_iter()
-        .map(decode_character)
+        .enumerate()
+        .map(|(j,c)| decode_character(EncodePos(index,j), c))
         .collect()
 }
 
-fn decode_character(char: Char) -> String {
+fn decode_character(p: EncodePos, char: Char) -> MorseResult<String> {
     match char[..] {
-        [Dot,Dash]                  => String::from("a"),
-        [Dash,Dot,Dot,Dot]          => String::from("b"),
-        [Dash,Dot,Dash,Dot]         => String::from("c"),
-        [Dash,Dot,Dot]              => String::from("d"),
-        [Dot]                       => String::from("e"),
-        [Dot,Dot,Dash,Dot]          => String::from("f"),
-        [Dash,Dash,Dot]             => String::from("g"),
-        [Dot,Dot,Dot,Dot]           => String::from("h"),
-        [Dot,Dot]                   => String::from("i"),
-        [Dot,Dash,Dash,Dash]        => String::from("j"),
-        [Dash,Dot,Dash]             => String::from("k"),
-        [Dot,Dash,Dot,Dot]          => String::from("l"),
-        [Dash,Dash]                 => String::from("m"),
-        [Dash,Dot]                  => String::from("n"),
-        [Dash,Dash,Dash]            => String::from("o"),
-        [Dot,Dash,Dash,Dot]         => String::from("p"),
-        [Dash,Dash,Dot,Dash]        => String::from("q"),
-        [Dot,Dash,Dot]              => String::from("r"),
-        [Dot,Dot,Dot]               => String::from("s"),
-        [Dash]                      => String::from("t"),
-        [Dot,Dot,Dash]              => String::from("u"),
-        [Dot,Dot,Dot,Dash]          => String::from("v"),
-        [Dot,Dash,Dash]             => String::from("w"),
-        [Dash,Dot,Dot,Dash]         => String::from("x"),
-        [Dash,Dot,Dash,Dash]        => String::from("y"),
-        [Dash,Dash,Dot,Dot]         => String::from("z"),
-        [Dot,Dot,Dash,Dash]         => String::from("ü"),
-        [Dot,Dash,Dot,Dash]         => String::from("ö"),
-        [Dot,Dash,Dash,Dash,Dash]   => String::from("1"),
-        [Dot,Dot,Dash,Dash,Dash]    => String::from("2"),
-        [Dot,Dot,Dot,Dash,Dash]     => String::from("3"),
-        [Dot,Dot,Dot,Dot,Dash]      => String::from("4"),
-        [Dot,Dot,Dot,Dot,Dot]       => String::from("5"),
-        [Dash,Dot,Dot,Dot,Dot]      => String::from("6"),
-        [Dash,Dash,Dot,Dot,Dot]     => String::from("7"),
-        [Dash,Dash,Dash,Dot,Dot]    => String::from("8"),
-        [Dash,Dash,Dash,Dash,Dot]   => String::from("9"),
-        [Dash,Dash,Dash,Dash,Dash]  => String::from("0"),
-        [Dot,Dot,Dash,Dot,Dot]      => String::from("é"),
-        [Dot,Dash,Dot,Dot,Dash]     => String::from("è"),
-        [Dot,Dash,Dash,Dot,Dash]    => String::from("à"),
-        [Dot,Dash,Dot,Dash,Dot]     => String::from("+"),
-        [Dash,Dot,Dot,Dot,Dash]     => String::from("="),
-        [Dash,Dot,Dot,Dash,Dot]     => String::from("/"),
-        [Dash,Dash,Dot,Dash,Dash]   => String::from("ñ"),
-        [Dot,Dot,Dash,Dash,Dot,Dot] => String::from("?"),
-        [Dot,Dot,Dash,Dash,Dot,Dash]=> String::from("_"),
-        [Dot,Dash,Dot,Dot,Dash,Dot] => String::from("\""),
-        [Dot,Dash,Dot,Dash,Dot,Dash] => String::from("."),
-        [Dot,Dash,Dash,Dot,Dash,Dot]=> String::from("@"),
-        [Dot,Dash,Dash,Dash,Dash,Dot] => String::from("\\"),
-        [Dash,Dot,Dot,Dot,Dot,Dash] => String::from("-"),
-        [Dash,Dot,Dash,Dot,Dash,Dot]=> String::from(";"),
-        [Dash,Dot,Dash,Dot,Dash,Dash] => String::from("!"),
-        [Dash,Dot,Dash,Dash,Dot,Dash] => String::from("|"),
-        [Dash,Dash,Dot,Dot,Dash,Dash] => String::from(","),
-        [Dash,Dash,Dash,Dot,Dot,Dot] => String::from(":"),
-        _                           => format!("invalid morse sequence [{}]",string_of_char(&char))
+        [Dot,Dash]                      => Ok(String::from("a")),
+        [Dash,Dot,Dot,Dot]              => Ok(String::from("b")),
+        [Dash,Dot,Dash,Dot]             => Ok(String::from("c")),
+        [Dash,Dot,Dot]                  => Ok(String::from("d")),
+        [Dot]                           => Ok(String::from("e")),
+        [Dot,Dot,Dash,Dot]              => Ok(String::from("f")),
+        [Dash,Dash,Dot]                 => Ok(String::from("g")),
+        [Dot,Dot,Dot,Dot]               => Ok(String::from("h")),
+        [Dot,Dot]                       => Ok(String::from("i")),
+        [Dot,Dash,Dash,Dash]            => Ok(String::from("j")),
+        [Dash,Dot,Dash]                 => Ok(String::from("k")),
+        [Dot,Dash,Dot,Dot]              => Ok(String::from("l")),
+        [Dash,Dash]                     => Ok(String::from("m")),
+        [Dash,Dot]                      => Ok(String::from("n")),
+        [Dash,Dash,Dash]                => Ok(String::from("o")),
+        [Dot,Dash,Dash,Dot]             => Ok(String::from("p")),
+        [Dash,Dash,Dot,Dash]            => Ok(String::from("q")),
+        [Dot,Dash,Dot]                  => Ok(String::from("r")),
+        [Dot,Dot,Dot]                   => Ok(String::from("s")),
+        [Dash]                          => Ok(String::from("t")),
+        [Dot,Dot,Dash]                  => Ok(String::from("u")),
+        [Dot,Dot,Dot,Dash]              => Ok(String::from("v")),
+        [Dot,Dash,Dash]                 => Ok(String::from("w")),
+        [Dash,Dot,Dot,Dash]             => Ok(String::from("x")),
+        [Dash,Dot,Dash,Dash]            => Ok(String::from("y")),
+        [Dash,Dash,Dot,Dot]             => Ok(String::from("z")),
+        [Dot,Dot,Dash,Dash]             => Ok(String::from("ü")),
+        [Dot,Dash,Dot,Dash]             => Ok(String::from("ö")),
+        [Dot,Dash,Dash,Dash,Dash]       => Ok(String::from("1")),
+        [Dot,Dot,Dash,Dash,Dash]        => Ok(String::from("2")),
+        [Dot,Dot,Dot,Dash,Dash]         => Ok(String::from("3")),
+        [Dot,Dot,Dot,Dot,Dash]          => Ok(String::from("4")),
+        [Dot,Dot,Dot,Dot,Dot]           => Ok(String::from("5")),
+        [Dash,Dot,Dot,Dot,Dot]          => Ok(String::from("6")),
+        [Dash,Dash,Dot,Dot,Dot]         => Ok(String::from("7")),
+        [Dash,Dash,Dash,Dot,Dot]        => Ok(String::from("8")),
+        [Dash,Dash,Dash,Dash,Dot]       => Ok(String::from("9")),
+        [Dash,Dash,Dash,Dash,Dash]      => Ok(String::from("0")),
+        [Dot,Dot,Dash,Dot,Dot]          => Ok(String::from("é")),
+        [Dot,Dash,Dot,Dot,Dash]         => Ok(String::from("è")),
+        [Dot,Dash,Dash,Dot,Dash]        => Ok(String::from("à")),
+        [Dot,Dash,Dot,Dash,Dot]         => Ok(String::from("+")),
+        [Dash,Dot,Dot,Dot,Dash]         => Ok(String::from("=")),
+        [Dash,Dot,Dot,Dash,Dot]         => Ok(String::from("/")),
+        [Dash,Dash,Dot,Dash,Dash]       => Ok(String::from("ñ")),
+        [Dot,Dot,Dash,Dash,Dot,Dot]     => Ok(String::from("?")),
+        [Dot,Dot,Dash,Dash,Dot,Dash]    => Ok(String::from("_")),
+        [Dot,Dash,Dot,Dot,Dash,Dot]     => Ok(String::from("\"")),
+        [Dot,Dash,Dot,Dash,Dot,Dash]    => Ok(String::from(".")),
+        [Dot,Dash,Dash,Dot,Dash,Dot]    => Ok(String::from("@")),
+        [Dot,Dash,Dash,Dash,Dash,Dot]   => Ok(String::from("\\")),
+        [Dash,Dot,Dot,Dot,Dot,Dash]     => Ok(String::from("-")),
+        [Dash,Dot,Dash,Dot,Dash,Dot]    => Ok(String::from(";")),
+        [Dash,Dot,Dash,Dot,Dash,Dash]   => Ok(String::from("!")),
+        [Dash,Dot,Dash,Dash,Dot,Dash]   => Ok(String::from("|")),
+        [Dash,Dash,Dot,Dot,Dash,Dash]   => Ok(String::from(",")),
+        [Dash,Dash,Dash,Dot,Dot,Dot]    => Ok(String::from(":")),
+        _                               => Err(format!("invalid morse sequence [{}] at position {}", string_of_char(&char), p))
     }
 }
 
@@ -104,11 +106,11 @@ pub fn encode(plaintext: String) -> MorseResult<String> {
 fn encode_word(word_number: usize, plaintext: String) -> MorseResult<Word> {
     plaintext.char_indices()
      .into_iter()
-     .map(|(i,c)| encode_char(Pos(word_number, i),c))
+     .map(|(i,c)| encode_char(EncodePos(word_number, i),c))
      .collect()
 }
 
-fn encode_char(p: Pos, c: char) -> MorseResult<Char> {
+fn encode_char(p: EncodePos, c: char) -> MorseResult<Char> {
     match c {
         'a' => Ok(vec![Dot,Dash]),
         'b' => Ok(vec![Dash,Dot,Dot,Dot]),

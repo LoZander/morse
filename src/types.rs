@@ -4,8 +4,8 @@ pub type Char = Vec<Sym>;
 pub type Word = Vec<Char>;
 pub type Sen = Vec<Word>;
 
-pub struct Pos(pub usize, pub usize);
-impl std::fmt::Display for Pos {
+pub struct EncodePos(pub usize, pub usize);
+impl std::fmt::Display for EncodePos {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "(word {}, char {})", self.0 + 1, self.1 + 1)
     }

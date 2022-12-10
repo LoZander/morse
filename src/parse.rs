@@ -1,30 +1,29 @@
-use crate::{types::{Sen,Word,Char,Sym::{Dot,Dash}}};
+use crate::{types::{Sen,Word,Char,Sym::{Dot,Dash}, MorseResult, EncodePos}};
 
-pub fn parse(s: String) -> Sen {
+pub fn parse(s: String) -> MorseResult<Sen> {
     s.trim()
      .split('/')
-     .into_iter()
-     .map(|x| parse_words(String::from(x)))
+     .enumerate()
+     .map(|(i,x)| parse_words(i,String::from(x)))
      .collect()
 }
 
-fn parse_words(s: String) -> Word {
+fn parse_words(i: usize, s: String) -> MorseResult<Word> {
     s.trim()
-     .split(' ')
+     .split_whitespace()
      .map(String::from)
-     .into_iter()
-     .map(parse_char)
+     .enumerate()
+     .map(|(j, s)| parse_char(EncodePos(i,j),s))
      .collect()
 }
 
-fn parse_char(s: String) -> Char {
+fn parse_char(p: EncodePos,s: String) -> MorseResult<Char> {
     s.trim().chars()
      .into_iter()
      .map(|c| match c {
         '.' => Ok(Dot),
         '-' => Ok(Dash),
-        e => Err(format!("Parsing error: {} is not a valid morse symbol", e))
+        e => Err(format!("parsing error: '{}' at position {} is not a valid morse symbol", e, p))
      })
-     .collect::<Result<Char,String>>()
-     .unwrap_or_default()
+     .collect()
 }
