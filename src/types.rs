@@ -40,6 +40,8 @@ pub fn string_of_sen(s: &Sen) -> String {
     let string = s.iter()
                           .map(|x| format!("{} / ",string_of_word(x)))
                           .collect::<String>();
+    
+    // Dangerous code here: potential index out of bounds!
     if string.len() == 0 {return string}
     string[0..(string.len() - 3)].to_string()
 }
