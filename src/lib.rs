@@ -1,2 +1,2 @@
-#![windows_subsystem = "windows"]
 pub mod standard;
+pub mod graphics;

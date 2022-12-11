@@ -1,6 +1,5 @@
 use eframe::{egui, epaint::vec2, HardwareAcceleration, Renderer, Theme};
-
-use super::morse;
+use crate::standard::morse;
 
 pub trait Gui {
     fn run(self);
