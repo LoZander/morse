@@ -1,4 +1,4 @@
-use crate::{types::{Sen,Word,Char,Sym::{Dot,Dash}, MorseResult, EncodePos}};
+use super::{types::{Sen,Word,Char,Sym::{Dot,Dash}, MorseResult, EncodePos}};
 
 pub fn parse(s: String) -> MorseResult<Sen> {
     s.trim()

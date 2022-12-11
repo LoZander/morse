@@ -1,4 +1,4 @@
-use crate::{types::{Sym::{Dash,Dot}, Sen, Word, Char, string_of_sen, string_of_char, MorseResult, EncodePos}, parse};
+use super::{types::{Sym::{Dash,Dot}, Sen, Word, Char, string_of_sen, string_of_char, MorseResult, EncodePos}, parse};
 
 pub trait MorseEncoder {
     /**
@@ -20,7 +20,8 @@ pub fn decode(cipher: String) -> MorseResult<String> {
        .enumerate()
        .map(|(i,w)| decode_word(i,w))
        .map(|x| x.map(|x| x + " "))
-       .collect()
+       .collect::<MorseResult<String>>()
+       .map(|s| s.trim().to_string())
 }
 
 fn decode_word(index: usize, word: Word) -> MorseResult<String> {
@@ -170,6 +171,6 @@ fn encode_char(p: EncodePos, c: char) -> MorseResult<Char> {
         '('|')' => Ok(vec![Dash,Dot,Dash,Dash,Dot,Dash]),
         ',' => Ok(vec![Dash,Dash,Dot,Dot,Dash,Dash]),
         ':' => Ok(vec![Dash,Dash,Dash,Dot,Dot,Dot]),
-        c => Err(format!("{} at position {} is not a valid character", c, p))
+        c => Err(format!("invalid character '{}' at position {}", c, p))
     }
 }

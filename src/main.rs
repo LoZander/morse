@@ -1,10 +1,12 @@
 #![windows_subsystem = "windows"]
-use gui::{GuiApp, Gui};
 
-mod types;
-mod morse;
-mod parse;
-mod gui;
+use standard::gui::{GuiApp, Gui};
+
+pub mod standard;
+
+#[cfg(test)]
+mod tests;
+
 fn main() {
     let gui = GuiApp::default();
     gui.run();
