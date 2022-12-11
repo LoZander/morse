@@ -1,4 +1,4 @@
-use super::{types::{Sen,Word,Char,Sym::{Dot,Dash}, MorseResult, EncodePos}};
+use crate::interfaces::types::{Sen, MorseResult, Word, Char, Sym, EncodePos};
 
 pub fn parse(s: String) -> MorseResult<Sen> {
     s.trim()
@@ -21,8 +21,8 @@ fn parse_char(p: EncodePos,s: String) -> MorseResult<Char> {
     s.trim().chars()
      .into_iter()
      .map(|c| match c {
-        '.' => Ok(Dot),
-        '-' => Ok(Dash),
+        '.' => Ok(Sym::Dot),
+        '-' => Ok(Sym::Dash),
         e => Err(format!("parsing error: '{}' at position {} is not a valid morse symbol", e, p))
      })
      .collect()

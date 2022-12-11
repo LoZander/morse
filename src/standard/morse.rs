@@ -1,4 +1,5 @@
-use super::{types::{Sym::{Dash,Dot}, Sen, Word, Char, string_of_sen, string_of_char, MorseResult, EncodePos}, parse};
+use crate::standard::parse;
+use crate::interfaces::types::{Sym::{Dash,Dot}, Sen, Word, Char, string_of_sen, string_of_char, MorseResult, EncodePos};
 
 pub trait MorseEncoder {
     /**
