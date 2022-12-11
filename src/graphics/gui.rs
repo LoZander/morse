@@ -1,4 +1,4 @@
-use eframe::{egui::{self, Ui}, epaint::vec2, HardwareAcceleration, Renderer, Theme};
+use eframe::{egui::{self, Ui}, epaint::vec2, NativeOptions};
 use crate::{standard::morse, interfaces::types::MorseResult};
 
 pub trait Gui {
@@ -12,28 +12,9 @@ pub struct GuiApp {
 
 impl Gui for GuiApp {
     fn run(self) {
-        let options = eframe::NativeOptions{
-            always_on_top: false,
-            maximized: false,
-            decorated: true,
-            fullscreen: false,
-            drag_and_drop_support: true,
-            icon_data: None,
-            initial_window_pos: None,
+        let options = NativeOptions {
             initial_window_size: Some(vec2(300.,400.)),
-            min_window_size: None,
-            max_window_size: None,
-            resizable: true,
-            transparent: false,
-            vsync: true,
-            multisampling: 0,
-            depth_buffer: 0,
-            stencil_buffer: 0,
-            hardware_acceleration: HardwareAcceleration::Preferred,
-            renderer: Renderer::default(),
-            follow_system_theme: cfg!(target_os = "macos") || cfg!(target_os = "windows"),
-            default_theme: Theme::Dark,
-            run_and_return: true,
+            ..NativeOptions::default()
         };
         eframe::run_native("Morse", options, Box::new(|_cc| Box::new(self)));
     }
