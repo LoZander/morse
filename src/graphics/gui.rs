@@ -1,5 +1,5 @@
 use eframe::{egui::{self, Ui}, epaint::vec2, NativeOptions};
-use crate::{standard::morse, interfaces::types::MorseResult};
+use crate::{standard::morse, interfaces::types::{MorseResult, Log}};
 
 pub trait Gui {
     fn run(self);
@@ -39,15 +39,14 @@ fn add_decode_block(data: &mut String, ui: &mut Ui) {
 
 fn add_block<F>(title: &str, data: &mut String, ui: &mut Ui, f: F) 
 where 
-    F: Fn(String) -> MorseResult<String>,
+    F: Fn(String) -> Log<String,String>,
 {
     ui.heading(title);
     ui.vertical(|ui| {
         ui.text_edit_multiline(data);
         ui.label("Output:");
         let res = match f(data.to_owned()) {
-            Ok(str) => str,
-            Err(str) => str
+            Log{value, errors} => format!("{}\n{}",value,errors.join("\n"))
         };
         ui.text_edit_multiline(&mut res.to_owned());
     });

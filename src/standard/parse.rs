@@ -1,6 +1,6 @@
 use crate::interfaces::types::{Sen, MorseResult, Word, Char, Sym, Pos};
 
-pub fn parse(s: String) -> MorseResult<Sen> {
+pub fn parse(s: String) -> Sen {
     s.trim()
      .split('/')
      .enumerate()
@@ -8,7 +8,7 @@ pub fn parse(s: String) -> MorseResult<Sen> {
      .collect()
 }
 
-fn parse_words(i: usize, s: String) -> MorseResult<Word> {
+fn parse_words(i: usize, s: String) -> Word {
     s.trim()
      .split_whitespace()
      .map(String::from)

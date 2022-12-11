@@ -1,3 +1,4 @@
+use crate::interfaces::types::Log;
 use crate::standard::parse;
 use crate::interfaces::types::{Sym::{Dash,Dot}, Sen, Word, Char, string_of_sen, string_of_char, MorseResult, Pos};
 
@@ -15,97 +16,113 @@ pub trait MorseDecoder {
     fn decode(cipher: String) -> String;
 }
 
-pub fn decode(cipher: String) -> MorseResult<String> {
-    let sen: Sen = parse::parse(cipher)?;
+pub fn decode(cipher: String) -> Log<String,String> {
+    let sen: Sen = parse::parse(cipher);
     sen.into_iter()
        .enumerate()
        .map(|(i,w)| decode_word(i,w))
-       .map(|x| x.map(|x| x + " "))
+       .fold(Log::ret(String::new()),
+            |acc,element|
+                acc.bind(|x|
+                element.bind(|y|
+                Log::ret(format!("{} {}", x, y)))))
+       .map(|x| x.trim().to_string())
+       /* .map(|x| x.map(|x| x + " "))
        .collect::<MorseResult<String>>()
-       .map(|s| s.trim().to_string())
+       .map(|s| s.trim().to_string()) */
 }
 
-fn decode_word(index: usize, word: Word) -> MorseResult<String> {
+fn decode_word(index: usize, word: Word) -> Log<String,String> {
     word.into_iter()
+        .map(|x|Log::from_result(x, Vec::new()))
         .enumerate()
-        .map(|(j,c)| decode_character(Pos(index,j), c))
-        .collect()
+        .map(|(j,c)| 
+            c.bind(|x| decode_character(Pos(index,j), x)))
+        .fold(Log::ret(String::new()),
+            |acc,element| 
+                acc.bind(|x|
+                element.bind(|y|
+                Log::ret(x + y.as_str()))))
 }
 
-fn decode_character(p: Pos, char: Char) -> MorseResult<String> {
+fn decode_character(p: Pos, char: Char) -> Log<String,String> {
     match char[..] {
-        [Dot,Dash]                      => Ok("a"),
-        [Dash,Dot,Dot,Dot]              => Ok("b"),
-        [Dash,Dot,Dash,Dot]             => Ok("c"),
-        [Dash,Dot,Dot]                  => Ok("d"),
-        [Dot]                           => Ok("e"),
-        [Dot,Dot,Dash,Dot]              => Ok("f"),
-        [Dash,Dash,Dot]                 => Ok("g"),
-        [Dot,Dot,Dot,Dot]               => Ok("h"),
-        [Dot,Dot]                       => Ok("i"),
-        [Dot,Dash,Dash,Dash]            => Ok("j"),
-        [Dash,Dot,Dash]                 => Ok("k"),
-        [Dot,Dash,Dot,Dot]              => Ok("l"),
-        [Dash,Dash]                     => Ok("m"),
-        [Dash,Dot]                      => Ok("n"),
-        [Dash,Dash,Dash]                => Ok("o"),
-        [Dot,Dash,Dash,Dot]             => Ok("p"),
-        [Dash,Dash,Dot,Dash]            => Ok("q"),
-        [Dot,Dash,Dot]                  => Ok("r"),
-        [Dot,Dot,Dot]                   => Ok("s"),
-        [Dash]                          => Ok("t"),
-        [Dot,Dot,Dash]                  => Ok("u"),
-        [Dot,Dot,Dot,Dash]              => Ok("v"),
-        [Dot,Dash,Dash]                 => Ok("w"),
-        [Dash,Dot,Dot,Dash]             => Ok("x"),
-        [Dash,Dot,Dash,Dash]            => Ok("y"),
-        [Dash,Dash,Dot,Dot]             => Ok("z"),
-        [Dot,Dot,Dash,Dash]             => Ok("ü"),
-        [Dot,Dash,Dot,Dash]             => Ok("ö"),
-        [Dot,Dash,Dash,Dash,Dash]       => Ok("1"),
-        [Dot,Dot,Dash,Dash,Dash]        => Ok("2"),
-        [Dot,Dot,Dot,Dash,Dash]         => Ok("3"),
-        [Dot,Dot,Dot,Dot,Dash]          => Ok("4"),
-        [Dot,Dot,Dot,Dot,Dot]           => Ok("5"),
-        [Dash,Dot,Dot,Dot,Dot]          => Ok("6"),
-        [Dash,Dash,Dot,Dot,Dot]         => Ok("7"),
-        [Dash,Dash,Dash,Dot,Dot]        => Ok("8"),
-        [Dash,Dash,Dash,Dash,Dot]       => Ok("9"),
-        [Dash,Dash,Dash,Dash,Dash]      => Ok("0"),
-        [Dot,Dot,Dash,Dot,Dot]          => Ok("é"),
-        [Dot,Dash,Dot,Dot,Dash]         => Ok("è"),
-        [Dot,Dash,Dash,Dot,Dash]        => Ok("à"),
-        [Dot,Dash,Dot,Dash,Dot]         => Ok("+"),
-        [Dash,Dot,Dot,Dot,Dash]         => Ok("="),
-        [Dash,Dot,Dot,Dash,Dot]         => Ok("/"),
-        [Dash,Dash,Dot,Dash,Dash]       => Ok("ñ"),
-        [Dot,Dot,Dash,Dash,Dot,Dot]     => Ok("?"),
-        [Dot,Dot,Dash,Dash,Dot,Dash]    => Ok("_"),
-        [Dot,Dash,Dot,Dot,Dash,Dot]     => Ok("\""),
-        [Dot,Dash,Dot,Dash,Dot,Dash]    => Ok("."),
-        [Dot,Dash,Dash,Dot,Dash,Dot]    => Ok("@"),
-        [Dot,Dash,Dash,Dash,Dash,Dot]   => Ok("\\"),
-        [Dash,Dot,Dot,Dot,Dot,Dash]     => Ok("-"),
-        [Dash,Dot,Dash,Dot,Dash,Dot]    => Ok(";"),
-        [Dash,Dot,Dash,Dot,Dash,Dash]   => Ok("!"),
-        [Dash,Dot,Dash,Dash,Dot,Dash]   => Ok("|"),
-        [Dash,Dash,Dot,Dot,Dash,Dash]   => Ok(","),
-        [Dash,Dash,Dash,Dot,Dot,Dot]    => Ok(":"),
-        _                               => Err(format!("invalid morse sequence [{}] at position {}", string_of_char(&char), p))
+        [Dot,Dash]                      => Log::ret("a"),
+        [Dash,Dot,Dot,Dot]              => Log::ret("b"),
+        [Dash,Dot,Dash,Dot]             => Log::ret("c"),
+        [Dash,Dot,Dot]                  => Log::ret("d"),
+        [Dot]                           => Log::ret("e"),
+        [Dot,Dot,Dash,Dot]              => Log::ret("f"),
+        [Dash,Dash,Dot]                 => Log::ret("g"),
+        [Dot,Dot,Dot,Dot]               => Log::ret("h"),
+        [Dot,Dot]                       => Log::ret("i"),
+        [Dot,Dash,Dash,Dash]            => Log::ret("j"),
+        [Dash,Dot,Dash]                 => Log::ret("k"),
+        [Dot,Dash,Dot,Dot]              => Log::ret("l"),
+        [Dash,Dash]                     => Log::ret("m"),
+        [Dash,Dot]                      => Log::ret("n"),
+        [Dash,Dash,Dash]                => Log::ret("o"),
+        [Dot,Dash,Dash,Dot]             => Log::ret("p"),
+        [Dash,Dash,Dot,Dash]            => Log::ret("q"),
+        [Dot,Dash,Dot]                  => Log::ret("r"),
+        [Dot,Dot,Dot]                   => Log::ret("s"),
+        [Dash]                          => Log::ret("t"),
+        [Dot,Dot,Dash]                  => Log::ret("u"),
+        [Dot,Dot,Dot,Dash]              => Log::ret("v"),
+        [Dot,Dash,Dash]                 => Log::ret("w"),
+        [Dash,Dot,Dot,Dash]             => Log::ret("x"),
+        [Dash,Dot,Dash,Dash]            => Log::ret("y"),
+        [Dash,Dash,Dot,Dot]             => Log::ret("z"),
+        [Dot,Dot,Dash,Dash]             => Log::ret("ü"),
+        [Dot,Dash,Dot,Dash]             => Log::ret("ö"),
+        [Dot,Dash,Dash,Dash,Dash]       => Log::ret("1"),
+        [Dot,Dot,Dash,Dash,Dash]        => Log::ret("2"),
+        [Dot,Dot,Dot,Dash,Dash]         => Log::ret("3"),
+        [Dot,Dot,Dot,Dot,Dash]          => Log::ret("4"),
+        [Dot,Dot,Dot,Dot,Dot]           => Log::ret("5"),
+        [Dash,Dot,Dot,Dot,Dot]          => Log::ret("6"),
+        [Dash,Dash,Dot,Dot,Dot]         => Log::ret("7"),
+        [Dash,Dash,Dash,Dot,Dot]        => Log::ret("8"),
+        [Dash,Dash,Dash,Dash,Dot]       => Log::ret("9"),
+        [Dash,Dash,Dash,Dash,Dash]      => Log::ret("0"),
+        [Dot,Dot,Dash,Dot,Dot]          => Log::ret("é"),
+        [Dot,Dash,Dot,Dot,Dash]         => Log::ret("è"),
+        [Dot,Dash,Dash,Dot,Dash]        => Log::ret("à"),
+        [Dot,Dash,Dot,Dash,Dot]         => Log::ret("+"),
+        [Dash,Dot,Dot,Dot,Dash]         => Log::ret("="),
+        [Dash,Dot,Dot,Dash,Dot]         => Log::ret("/"),
+        [Dash,Dash,Dot,Dash,Dash]       => Log::ret("ñ"),
+        [Dot,Dot,Dash,Dash,Dot,Dot]     => Log::ret("?"),
+        [Dot,Dot,Dash,Dash,Dot,Dash]    => Log::ret("_"),
+        [Dot,Dash,Dot,Dot,Dash,Dot]     => Log::ret("\""),
+        [Dot,Dash,Dot,Dash,Dot,Dash]    => Log::ret("."),
+        [Dot,Dash,Dash,Dot,Dash,Dot]    => Log::ret("@"),
+        [Dot,Dash,Dash,Dash,Dash,Dot]   => Log::ret("\\"),
+        [Dash,Dot,Dot,Dot,Dot,Dash]     => Log::ret("-"),
+        [Dash,Dot,Dash,Dot,Dash,Dot]    => Log::ret(";"),
+        [Dash,Dot,Dash,Dot,Dash,Dash]   => Log::ret("!"),
+        [Dash,Dot,Dash,Dash,Dot,Dash]   => Log::ret("|"),
+        [Dash,Dash,Dot,Dot,Dash,Dash]   => Log::ret(","),
+        [Dash,Dash,Dash,Dot,Dot,Dot]    => Log::ret(":"),
+        []                              => Log::ret(""),
+        _                               => Log{
+                                            value: "#",
+                                            errors: vec![format!("invalid morse sequence [{}] at position {}", string_of_char(&Ok(char) ).value, p)]
+                                        }
     }.map(str::to_string)
 }
 
-pub fn encode(plaintext: String) -> MorseResult<String> {
+pub fn encode(plaintext: String) -> Log<String,String> {
         let sen: Sen = plaintext.to_lowercase()
                         .split_whitespace()
                         .enumerate()
                         .map(|(i,s)| (i,s.to_string()))
                         .map(|(i,s)| encode_word(i,s))
-                        .collect::<MorseResult<_>>()?;
-        Ok(string_of_sen(&sen))
+                        .collect();
+        string_of_sen(&sen)
 }
 
-fn encode_word(word_number: usize, plaintext: String) -> MorseResult<Word> {
+fn encode_word(word_number: usize, plaintext: String) -> Word {
     plaintext.char_indices()
      .into_iter()
      .map(|(i,c)| encode_char(Pos(word_number, i),c))
