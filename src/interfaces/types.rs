@@ -44,11 +44,10 @@ pub fn string_of_word(w: &Word) -> String {
 }
 
 pub fn string_of_sen(s: &Sen) -> String {
-    let string = s.iter()
-                          .map(|x| format!("{} / ",string_of_word(x)))
-                          .collect::<String>();
-    
-    // Dangerous code here: potential index out of bounds!
-    if string.is_empty() {return string}
-    string[0..(string.len() - 3)].to_string()
+    let sen_string = s.iter()
+                              .map(|x| format!("{} / ",string_of_word(x)))
+                              .collect::<String>();
+    sen_string.strip_suffix(" / ")
+              .map(str::to_string)
+              .unwrap_or(sen_string)
 }
