@@ -1,4 +1,4 @@
-use super::super::standard::morse;
+use morse::standard::morse;
 
 #[test]
 fn test_decode_sos() {
