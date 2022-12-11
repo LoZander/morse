@@ -4,6 +4,15 @@ pub type Char = Vec<Sym>;
 pub type Word = Vec<Char>;
 pub type Sen = Vec<Word>;
 
+pub struct Pos(pub usize, pub usize);
+impl std::fmt::Display for Pos {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "(word {}, char {})", self.0 + 1, self.1 + 1)
+    }
+}
+
+pub type MorseResult<T> = Result<T,String>;
+
 impl std::fmt::Display for Sym {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
@@ -38,5 +47,8 @@ pub fn string_of_sen(s: &Sen) -> String {
     let string = s.iter()
                           .map(|x| format!("{} / ",string_of_word(x)))
                           .collect::<String>();
-    string[0..string.len() - 3].to_string()
+    
+    // Dangerous code here: potential index out of bounds!
+    if string.is_empty() {return string}
+    string[0..(string.len() - 3)].to_string()
 }

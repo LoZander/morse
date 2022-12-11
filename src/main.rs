@@ -1,11 +1,7 @@
 #![windows_subsystem = "windows"]
-use gui::{GuiApp, Gui};
+use morse::graphics::gui::{Gui, GuiApp};
 
-mod types;
-mod morse;
-mod parse;
-mod gui;
 fn main() {
     let gui = GuiApp::default();
-    gui.run();
+    gui.run()
 }
