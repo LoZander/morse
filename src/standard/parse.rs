@@ -9,8 +9,7 @@ pub fn parse(s: String) -> Sen {
 }
 
 fn parse_words(i: usize, s: String) -> Word {
-    s.trim()
-     .split_whitespace()
+    s.split_whitespace()
      .map(String::from)
      .enumerate()
      .map(|(j, s)| parse_char(Pos(i,j),s))

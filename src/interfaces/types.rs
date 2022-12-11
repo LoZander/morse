@@ -15,7 +15,7 @@ impl<A, E: Clone> Log<A,E> {
     {
         let log = f(self.value);
 
-        let mut errs = self.errors.clone();
+        let mut errs = self.errors;
         errs.append(&mut log.errors.to_owned());
         Log{
             errors: errs,

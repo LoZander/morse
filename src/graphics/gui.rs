@@ -1,5 +1,5 @@
 use eframe::{egui::{self, Ui}, epaint::vec2, NativeOptions};
-use crate::{standard::morse, interfaces::types::{MorseResult, Log}};
+use crate::{standard::morse, interfaces::types::Log};
 
 pub trait Gui {
     fn run(self);
@@ -45,9 +45,8 @@ where
     ui.vertical(|ui| {
         ui.text_edit_multiline(data);
         ui.label("Output:");
-        let res = match f(data.to_owned()) {
-            Log{value, errors} => format!("{}\n{}",value,errors.join("\n"))
-        };
-        ui.text_edit_multiline(&mut res.to_owned());
+        let res = f(data.to_owned());
+        let mut string = format!("{}\n{}", res.value, res.errors.join("\n"));
+        ui.text_edit_multiline(&mut string);
     });
 }
