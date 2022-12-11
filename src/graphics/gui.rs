@@ -20,7 +20,7 @@ impl Gui for GuiApp {
             drag_and_drop_support: true,
             icon_data: None,
             initial_window_pos: None,
-            initial_window_size: Some(vec2(300.,300.)),
+            initial_window_size: Some(vec2(300.,400.)),
             min_window_size: None,
             max_window_size: None,
             resizable: true,
@@ -50,7 +50,7 @@ impl eframe::App for GuiApp {
                     Ok(str) => str,
                     Err(str) => str
                 };
-                ui.label(x);
+                ui.text_edit_multiline(&mut x.to_owned());
             });
             ui.heading("Decoding");
             ui.vertical(|ui| {
@@ -60,7 +60,7 @@ impl eframe::App for GuiApp {
                     Ok(str) => str,
                     Err(str) => str
                 };
-                ui.label(x);
+                ui.text_edit_multiline(&mut x.to_owned());
             });
         });
     }
