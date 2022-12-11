@@ -1,5 +1,5 @@
 use crate::standard::parse;
-use crate::interfaces::types::{Sym::{Dash,Dot}, Sen, Word, Char, string_of_sen, string_of_char, MorseResult, EncodePos};
+use crate::interfaces::types::{Sym::{Dash,Dot}, Sen, Word, Char, string_of_sen, string_of_char, MorseResult, Pos};
 
 pub trait MorseEncoder {
     /**
@@ -28,11 +28,11 @@ pub fn decode(cipher: String) -> MorseResult<String> {
 fn decode_word(index: usize, word: Word) -> MorseResult<String> {
     word.into_iter()
         .enumerate()
-        .map(|(j,c)| decode_character(EncodePos(index,j), c))
+        .map(|(j,c)| decode_character(Pos(index,j), c))
         .collect()
 }
 
-fn decode_character(p: EncodePos, char: Char) -> MorseResult<String> {
+fn decode_character(p: Pos, char: Char) -> MorseResult<String> {
     match char[..] {
         [Dot,Dash]                      => Ok("a"),
         [Dash,Dot,Dot,Dot]              => Ok("b"),
@@ -108,11 +108,11 @@ pub fn encode(plaintext: String) -> MorseResult<String> {
 fn encode_word(word_number: usize, plaintext: String) -> MorseResult<Word> {
     plaintext.char_indices()
      .into_iter()
-     .map(|(i,c)| encode_char(EncodePos(word_number, i),c))
+     .map(|(i,c)| encode_char(Pos(word_number, i),c))
      .collect()
 }
 
-fn encode_char(p: EncodePos, c: char) -> MorseResult<Char> {
+fn encode_char(p: Pos, c: char) -> MorseResult<Char> {
     match c {
         'a' => Ok(vec![Dot,Dash]),
         'b' => Ok(vec![Dash,Dot,Dot,Dot]),

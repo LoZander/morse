@@ -24,7 +24,15 @@ fn test_decode_empty_gives_empty() {
 #[test]
 fn test_decode_invalid_morse_seq_gives_err() {
     let ciphertext = String::from(".......... ---");
-    let plaintext = morse::decode(ciphertext);
-    let error = plaintext.expect_err("expected error");
+    let res = morse::decode(ciphertext);
+    let error = res.expect_err("expected error");
     assert_eq!(error, "invalid morse sequence [..........] at position (word 1, char 1)")
+}
+
+#[test]
+fn test_decode_invalid_morse_symbol_gives_err() {
+    let cihpertext = String::from(".a. --- ...");
+    let res = morse::decode(cihpertext);
+    let error = res.expect_err("expected error");
+    assert_eq!(error, "parsing error: invalid symbol 'a' at position (word 1, char 1)")
 }
