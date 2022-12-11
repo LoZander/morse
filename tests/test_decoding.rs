@@ -20,3 +20,11 @@ fn test_decode_empty_gives_empty() {
     let plaintext = morse::decode(ciphertext).unwrap();
     assert!(plaintext.is_empty())
 }
+
+#[test]
+fn test_decode_invalid_morse_seq_gives_err() {
+    let ciphertext = String::from(".......... ---");
+    let plaintext = morse::decode(ciphertext);
+    let error = plaintext.expect_err("expected error");
+    assert_eq!(error, "invalid morse sequence [..........] at position (word 1, char 1)")
+}
