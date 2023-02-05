@@ -3,7 +3,7 @@ use ::morse::standard::morse::{MorseTranslater, MorseDecoder};
 
 #[test]
 fn test_decode_sos() {
-    let translater = MorseTranslater::new();
+    let translater = MorseTranslater::default();
     let ciphertext = String::from("... --- ...");
     let plaintext = translater.decode(ciphertext).unwrap();
     assert_eq!(plaintext, "sos")
@@ -11,7 +11,7 @@ fn test_decode_sos() {
 
 #[test]
 fn test_decode_three_words() {
-    let translater = MorseTranslater::new();
+    let translater = MorseTranslater::default();
     let ciphertext = String::from("- . ... - / ... --- -- . / .-- --- .-. -.. ...");
     let plaintext = translater.decode(ciphertext).unwrap();
     assert_eq!(plaintext, "test some words")
@@ -19,7 +19,7 @@ fn test_decode_three_words() {
 
 #[test]
 fn test_decode_empty_gives_empty() {
-    let translater = MorseTranslater::new();
+    let translater = MorseTranslater::default();
     let ciphertext = String::new();
     let plaintext = translater.decode(ciphertext).unwrap();
     assert!(plaintext.is_empty())
@@ -27,7 +27,7 @@ fn test_decode_empty_gives_empty() {
 
 #[test]
 fn test_decode_invalid_morse_seq_gives_err() {
-    let translater = MorseTranslater::new();
+    let translater = MorseTranslater::default();
     let ciphertext = String::from(".......... ---");
     let res = translater.decode(ciphertext);
     let error = res.expect_err("expected error");
@@ -36,7 +36,7 @@ fn test_decode_invalid_morse_seq_gives_err() {
 
 #[test]
 fn test_decode_invalid_morse_symbol_gives_err() {
-    let translater = MorseTranslater::new();
+    let translater = MorseTranslater::default();
     let cihpertext = String::from(".a. --- ...");
     let res = translater.decode(cihpertext);
     let error = res.expect_err("expected error");
