@@ -1,4 +1,6 @@
 #[derive(Clone)]
+#[derive(Hash)]
+#[derive(PartialEq,Eq)]
 pub enum Sym {Dash,Dot}
 pub type Char = Vec<Sym>;
 pub type Word = Vec<Char>;
@@ -24,14 +26,14 @@ impl std::fmt::Display for Sym {
 
 impl std::fmt::Debug for Sym {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f,"{}",self)
+        write!(f,"{self}")
     }
 }
 
 
 pub fn string_of_char(c: &Char) -> String {
     c.iter()
-     .map(|x| format!("{}",x))
+     .map(|x| format!("{x}"))
      .collect::<String>()
 }
 

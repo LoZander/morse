@@ -1,5 +1,5 @@
 use eframe::{egui, epaint::vec2, HardwareAcceleration, Renderer, Theme};
-use crate::standard::morse;
+use crate::standard::morse::{MorseTranslater, MorseEncoder, MorseDecoder};
 
 pub trait Gui {
     fn run(self);
@@ -41,12 +41,13 @@ impl Gui for GuiApp {
 
 impl eframe::App for GuiApp {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
+        let translater = MorseTranslater::new();
         egui::CentralPanel::default().show(ctx, |ui| {
             ui.heading("Encoding");
             ui.vertical(|ui| {
                 ui.text_edit_multiline(&mut self.enc_string);
                 ui.label("Output:");
-                let x = match morse::encode(self.enc_string.clone()) {
+                let x = match translater.encode(self.enc_string.clone()) {
                     Ok(str) => str,
                     Err(str) => str
                 };
@@ -56,7 +57,7 @@ impl eframe::App for GuiApp {
             ui.vertical(|ui| {
                 ui.text_edit_multiline(&mut self.dec_string);
                 ui.label("Output:");
-                let x = match morse::decode(self.dec_string.clone()) {
+                let x = match translater.decode(self.dec_string.clone()) {
                     Ok(str) => str,
                     Err(str) => str
                 };
