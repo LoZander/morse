@@ -50,35 +50,13 @@ pub struct SymbolMap {
     pairs: HashSet<(char, Char)>
 }
 
-#[derive(Default)]
 pub struct SymbolMapBuilder {
     map: HashSet<(char, Char)>
 }
 
-impl SymbolMapBuilder {
-    pub fn new() -> Self {
-        Self::default()
-    }
-
-    pub fn with<T: Into<Char>>(mut self, plain: char, cipher: T) -> Result<Self, String> {
-        let cipher: Char = cipher.into();
-        let added = self.map.insert((plain, cipher.clone()));
-        if !added {
-            return Err(format!("duplicate error: failed to add ({}, {}) as it's a duplicate entry", plain, cipher))
-        }
-
-        Ok(self)
-    }
-
-    pub fn build(self) -> SymbolMap {
-        SymbolMap { pairs: self.map }
-    }
-}
-
-impl Default for SymbolMap {
+impl Default for SymbolMapBuilder {
     fn default() -> Self {
-        
-        SymbolMapBuilder::new()
+        Self { map: Default::default() }
         .with('a',  [Dot,Dash])                     .unwrap()
         .with('b',  [Dash,Dot,Dot,Dot])             .unwrap()
         .with('c',  [Dash,Dot,Dash,Dot])            .unwrap()
@@ -138,7 +116,32 @@ impl Default for SymbolMap {
         .with(')',  [Dash,Dot,Dash,Dash,Dot,Dash])  .unwrap()
         .with(',',  [Dash,Dash,Dot,Dot,Dash,Dash])  .unwrap()
         .with(':',  [Dash,Dash,Dash,Dot,Dot,Dot])   .unwrap()
-        .build()
+    }
+}
+
+impl SymbolMapBuilder {
+    pub fn new() -> Self {
+        Self { map: HashSet::new() }
+    }
+
+    pub fn with<T: Into<Char>>(mut self, plain: char, cipher: T) -> Result<Self, String> {
+        let cipher: Char = cipher.into();
+        let added = self.map.insert((plain, cipher.clone()));
+        if !added {
+            return Err(format!("duplicate error: failed to add ({}, {}) as it's a duplicate entry", plain, cipher))
+        }
+
+        Ok(self)
+    }
+
+    pub fn build(self) -> SymbolMap {
+        SymbolMap { pairs: self.map }
+    }
+}
+
+impl Default for SymbolMap {
+    fn default() -> Self {
+        SymbolMapBuilder::default().build()
     }
 }
 
