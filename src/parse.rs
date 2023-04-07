@@ -1,4 +1,4 @@
-use crate::interfaces::types::{Sen, MorseResult, Word, Char, Sym, Pos};
+use crate::types::{Sen, MorseResult, Word, Char, Sym, Pos};
 
 pub fn parse<T: ToString>(s: T) -> MorseResult<Sen> {
     s.to_string()

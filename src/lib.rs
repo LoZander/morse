@@ -1,3 +1,4 @@
-pub mod interfaces;
-pub mod standard;
-pub mod graphics;
+pub mod morse;
+pub mod parse;
+pub mod types;
+pub mod gui;
