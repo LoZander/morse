@@ -1,4 +1,3 @@
-use morse::standard::morse;
 use ::morse::standard::morse::{MorseTranslater, MorseEncoder};
 
 #[test]

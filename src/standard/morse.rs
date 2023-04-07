@@ -1,7 +1,6 @@
 use crate::standard::parse;
-use crate::interfaces::types::{Sym::{Dash,Dot}, Sen, Word, Char, string_of_sen, string_of_char, MorseResult, Pos};
-use std::collections::hash_set::{HashSet};
-use std::hash::Hash;
+use crate::interfaces::types::{Sym::{Dash,Dot}, Sen, Word, Char, MorseResult, Pos};
+use std::collections::hash_set::HashSet;
 
 pub trait MorseEncoder {
     fn encode<T: ToString>(&self, plaintext: T) -> MorseResult<String>;
@@ -36,7 +35,7 @@ impl MorseEncoder for MorseTranslater {
                         .map(|(i,s)| (i,s.to_string()))
                         .map(|(i,s)| self.encode_word(i,s))
                         .collect::<MorseResult<_>>()?;
-        Ok(string_of_sen(&sen))
+        Ok(sen.to_string())
     }
 }
 
@@ -55,7 +54,7 @@ impl MorseTranslater {
 impl MorseDecoder for MorseTranslater {
     fn decode<T: ToString>(&self,cipher: T) -> MorseResult<String> {
         let sen: Sen = parse::parse(cipher)?;
-        sen.into_iter()
+        sen.iter()
        .enumerate()
        .map(|(i,w)| self.decode_word(i,w))
        .map(|x| x.map(|x| x + " "))
@@ -65,16 +64,16 @@ impl MorseDecoder for MorseTranslater {
 }
 
 impl MorseTranslater {
-    fn decode_word(&self, index: usize, word: Word) -> MorseResult<String> {
-        word.into_iter()
+    fn decode_word(&self, index: usize, word: &Word) -> MorseResult<String> {
+        word.iter()
             .enumerate()
             .map(|(j,c)| self.decode_character(Pos(index,j), c))
             .collect()
     }
     
-    fn decode_character(&self, p: Pos, char: Char) -> MorseResult<String> {
+    fn decode_character(&self, p: Pos, char: &Char) -> MorseResult<String> {
         self.symbol_map.get_plain(char.clone())
-            .map_err(|_| format!("invalid morse sequence [{}] at position {}", string_of_char(&char), p))
+            .map_err(|_| format!("invalid morse sequence [{}] at position {}", char, p))
             .map(Into::into)
     }
 }
@@ -87,65 +86,65 @@ impl Default for SymbolMap {
     fn default() -> Self {
         let mut set: HashSet<(char,Char)> = HashSet::new();
 
-        set.insert(('a', vec![Dot,Dash]));
-        set.insert(('b', vec![Dash,Dot,Dot,Dot]));
-        set.insert(('c', vec![Dash,Dot,Dash,Dot]));
-        set.insert(('d', vec![Dash,Dot,Dot]));
-        set.insert(('e', vec![Dot]));
-        set.insert(('f', vec![Dot,Dot,Dash,Dot]));
-        set.insert(('g', vec![Dash,Dash,Dot]));
-        set.insert(('h', vec![Dot,Dot,Dot,Dot]));
-        set.insert(('i', vec![Dot,Dot]));
-        set.insert(('j', vec![Dot,Dash,Dash,Dash]));
-        set.insert(('k', vec![Dash,Dot,Dash]));
-        set.insert(('l', vec![Dot,Dash,Dot,Dot]));
-        set.insert(('m', vec![Dash,Dash]));
-        set.insert(('n', vec![Dash,Dot]));
-        set.insert(('o', vec![Dash,Dash,Dash]));
-        set.insert(('p', vec![Dot,Dash,Dash,Dot]));
-        set.insert(('q', vec![Dash,Dash,Dot,Dash]));
-        set.insert(('r', vec![Dot,Dash,Dot]));
-        set.insert(('s', vec![Dot,Dot,Dot]));
-        set.insert(('t', vec![Dash]));
-        set.insert(('u', vec![Dot,Dot,Dash]));
-        set.insert(('v', vec![Dot,Dot,Dot,Dash]));
-        set.insert(('w', vec![Dot,Dash,Dash]));
-        set.insert(('x', vec![Dash,Dot,Dot,Dash]));
-        set.insert(('y', vec![Dash,Dot,Dash,Dash]));
-        set.insert(('z', vec![Dash,Dash,Dot,Dot]));
-        set.insert(('ü', vec![Dot,Dot,Dash,Dash]));
-        set.insert(('ä', vec![Dot,Dash,Dot,Dash]));
-        set.insert(('ö', vec![Dash,Dash,Dash,Dot]));
-        set.insert(('1', vec![Dot,Dash,Dash,Dash,Dash]));
-        set.insert(('2', vec![Dot,Dot,Dash,Dash,Dash]));
-        set.insert(('3', vec![Dot,Dot,Dot,Dash,Dash]));
-        set.insert(('4', vec![Dot,Dot,Dot,Dot,Dash]));
-        set.insert(('5', vec![Dot,Dot,Dot,Dot,Dot]));
-        set.insert(('6', vec![Dash,Dot,Dot,Dot,Dot]));
-        set.insert(('7', vec![Dash,Dash,Dot,Dot,Dot]));
-        set.insert(('8', vec![Dash,Dash,Dash,Dot,Dot]));
-        set.insert(('9', vec![Dash,Dash,Dash,Dash,Dot]));
-        set.insert(('0', vec![Dash,Dash,Dash,Dash,Dash]));
-        set.insert(('é', vec![Dot,Dot,Dash,Dot,Dot]));
-        set.insert(('è', vec![Dot,Dash,Dot,Dot,Dash]));
-        set.insert(('à', vec![Dot,Dash,Dash,Dot,Dash]));
-        set.insert(('+', vec![Dot,Dash,Dot,Dash,Dot]));
-        set.insert(('=', vec![Dash,Dot,Dot,Dot,Dash]));
-        set.insert(('/', vec![Dash,Dot,Dot,Dash,Dot]));
-        set.insert(('ñ', vec![Dash,Dash,Dot,Dash,Dash]));
-        set.insert(('?', vec![Dot,Dot,Dash,Dash,Dot,Dot]));
-        set.insert(('_', vec![Dot,Dot,Dash,Dash,Dot,Dash]));
-        set.insert(('"', vec![Dot,Dash,Dot,Dot,Dash,Dot]));
-        set.insert(('.', vec![Dot,Dash,Dot,Dash,Dot,Dash]));
-        set.insert(('@', vec![Dot,Dash,Dash,Dot,Dash,Dot]));
-        set.insert(('\'', vec![Dot,Dash,Dash,Dash,Dash,Dot]));
-        set.insert(('-', vec![Dash,Dot,Dot,Dot,Dot,Dash]));
-        set.insert((';', vec![Dash,Dot,Dash,Dot,Dash,Dot]));
-        set.insert(('!', vec![Dash,Dot,Dash,Dot,Dash,Dash]));
-        set.insert(('(', vec![Dash,Dot,Dash,Dash,Dot,Dash]));
-        set.insert((')', vec![Dash,Dot,Dash,Dash,Dot,Dash]));
-        set.insert((',', vec![Dash,Dash,Dot,Dot,Dash,Dash]));
-        set.insert((':', vec![Dash,Dash,Dash,Dot,Dot,Dot]));
+        set.insert(('a', [Dot,Dash].into()));
+        set.insert(('b', [Dash,Dot,Dot,Dot].into()));
+        set.insert(('c', [Dash,Dot,Dash,Dot].into()));
+        set.insert(('d', [Dash,Dot,Dot].into()));
+        set.insert(('e', [Dot].into()));
+        set.insert(('f', [Dot,Dot,Dash,Dot].into()));
+        set.insert(('g', [Dash,Dash,Dot].into()));
+        set.insert(('h', [Dot,Dot,Dot,Dot].into()));
+        set.insert(('i', [Dot,Dot].into()));
+        set.insert(('j', [Dot,Dash,Dash,Dash].into()));
+        set.insert(('k', [Dash,Dot,Dash].into()));
+        set.insert(('l', [Dot,Dash,Dot,Dot].into()));
+        set.insert(('m', [Dash,Dash].into()));
+        set.insert(('n', [Dash,Dot].into()));
+        set.insert(('o', [Dash,Dash,Dash].into()));
+        set.insert(('p', [Dot,Dash,Dash,Dot].into()));
+        set.insert(('q', [Dash,Dash,Dot,Dash].into()));
+        set.insert(('r', [Dot,Dash,Dot].into()));
+        set.insert(('s', [Dot,Dot,Dot].into()));
+        set.insert(('t', [Dash].into()));
+        set.insert(('u', [Dot,Dot,Dash].into()));
+        set.insert(('v', [Dot,Dot,Dot,Dash].into()));
+        set.insert(('w', [Dot,Dash,Dash].into()));
+        set.insert(('x', [Dash,Dot,Dot,Dash].into()));
+        set.insert(('y', [Dash,Dot,Dash,Dash].into()));
+        set.insert(('z', [Dash,Dash,Dot,Dot].into()));
+        set.insert(('ü', [Dot,Dot,Dash,Dash].into()));
+        set.insert(('ä', [Dot,Dash,Dot,Dash].into()));
+        set.insert(('ö', [Dash,Dash,Dash,Dot].into()));
+        set.insert(('1', [Dot,Dash,Dash,Dash,Dash].into()));
+        set.insert(('2', [Dot,Dot,Dash,Dash,Dash].into()));
+        set.insert(('3', [Dot,Dot,Dot,Dash,Dash].into()));
+        set.insert(('4', [Dot,Dot,Dot,Dot,Dash].into()));
+        set.insert(('5', [Dot,Dot,Dot,Dot,Dot].into()));
+        set.insert(('6', [Dash,Dot,Dot,Dot,Dot].into()));
+        set.insert(('7', [Dash,Dash,Dot,Dot,Dot].into()));
+        set.insert(('8', [Dash,Dash,Dash,Dot,Dot].into()));
+        set.insert(('9', [Dash,Dash,Dash,Dash,Dot].into()));
+        set.insert(('0', [Dash,Dash,Dash,Dash,Dash].into()));
+        set.insert(('é', [Dot,Dot,Dash,Dot,Dot].into()));
+        set.insert(('è', [Dot,Dash,Dot,Dot,Dash].into()));
+        set.insert(('à', [Dot,Dash,Dash,Dot,Dash].into()));
+        set.insert(('+', [Dot,Dash,Dot,Dash,Dot].into()));
+        set.insert(('=', [Dash,Dot,Dot,Dot,Dash].into()));
+        set.insert(('/', [Dash,Dot,Dot,Dash,Dot].into()));
+        set.insert(('ñ', [Dash,Dash,Dot,Dash,Dash].into()));
+        set.insert(('?', [Dot,Dot,Dash,Dash,Dot,Dot].into()));
+        set.insert(('_', [Dot,Dot,Dash,Dash,Dot,Dash].into()));
+        set.insert(('"', [Dot,Dash,Dot,Dot,Dash,Dot].into()));
+        set.insert(('.', [Dot,Dash,Dot,Dash,Dot,Dash].into()));
+        set.insert(('@', [Dot,Dash,Dash,Dot,Dash,Dot].into()));
+        set.insert(('\'', [Dot,Dash,Dash,Dash,Dash,Dot].into()));
+        set.insert(('-', [Dash,Dot,Dot,Dot,Dot,Dash].into()));
+        set.insert((';', [Dash,Dot,Dash,Dot,Dash,Dot].into()));
+        set.insert(('!', [Dash,Dot,Dash,Dot,Dash,Dash].into()));
+        set.insert(('(', [Dash,Dot,Dash,Dash,Dot,Dash].into()));
+        set.insert((')', [Dash,Dot,Dash,Dash,Dot,Dash].into()));
+        set.insert((',', [Dash,Dash,Dot,Dot,Dash,Dash].into()));
+        set.insert((':', [Dash,Dash,Dash,Dot,Dot,Dot].into()));
 
         Self { pairs: set }
     }
