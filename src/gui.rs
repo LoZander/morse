@@ -1,8 +1,17 @@
 use eframe::{egui, epaint::vec2, HardwareAcceleration, Renderer, Theme};
+use thiserror::Error;
 use crate::morse::{SymbolMap, self};
 
+#[derive(Error, Debug)]
+pub enum GuiError {
+    #[error(transparent)]
+    Eframe(#[from] eframe::Error)
+}
+
+pub type GuiResult = Result<(), GuiError>;
+
 pub trait Gui {
-    fn run(self);
+    fn run(self) -> GuiResult;
 }
 #[derive(Default)]
 pub struct GuiApp {
@@ -11,20 +20,14 @@ pub struct GuiApp {
 }
 
 impl Gui for GuiApp {
-    fn run(self) {
+    fn run(self) -> GuiResult {
+        let viewport = egui::ViewportBuilder::default()
+            .with_title("Morse")
+            .with_inner_size(vec2(300.,300.))
+        ;
+
         let options = eframe::NativeOptions{
-            always_on_top: false,
-            maximized: false,
-            decorated: true,
-            fullscreen: false,
-            drag_and_drop_support: true,
-            icon_data: None,
-            initial_window_pos: None,
-            initial_window_size: Some(vec2(300.,300.)),
-            min_window_size: None,
-            max_window_size: None,
-            resizable: true,
-            transparent: false,
+            viewport,
             vsync: true,
             multisampling: 0,
             depth_buffer: 0,
@@ -34,8 +37,14 @@ impl Gui for GuiApp {
             follow_system_theme: cfg!(target_os = "macos") || cfg!(target_os = "windows"),
             default_theme: Theme::Dark,
             run_and_return: true,
+            event_loop_builder: None,
+            window_builder: None,
+            shader_version: None,
+            centered: true,
+            persist_window: false
         };
-        eframe::run_native("Morse", options, Box::new(|_cc| Box::new(self)));
+        eframe::run_native("Morse", options, Box::new(|_cc| Box::new(self)))?;
+        Ok(())
     }
 }
 

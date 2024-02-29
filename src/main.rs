@@ -3,5 +3,5 @@ use morse::gui::{Gui, GuiApp};
 
 fn main() {
     let gui = GuiApp::default();
-    gui.run()
+    gui.run().unwrap()
 }
